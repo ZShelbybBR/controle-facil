@@ -123,6 +123,7 @@ export function TransactionsPage() {
         amount: data.amount,
         type: data.type as 'income' | 'expense',
         date: data.date,
+        wallet_id: data.wallet_id ?? null,
       };
 
       if (editingTransaction) {

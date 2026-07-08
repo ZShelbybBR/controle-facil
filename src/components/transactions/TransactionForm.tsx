@@ -10,7 +10,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCategories } from '@/hooks/useCategories';
+import { useWallets } from '@/hooks/useWallets';
 import { RECURRING_TYPES } from '@/lib/constants';
+import { formatCurrency } from '@/lib/utils';
 import type { Category, Transaction } from '@/types';
 
 export interface TransactionFormData {
@@ -21,6 +23,7 @@ export interface TransactionFormData {
   date: string;
   is_recurring: boolean;
   recurring_type: 'monthly' | 'weekly' | 'yearly' | null;
+  wallet_id?: string | null;
 }
 
 interface TransactionFormProps {
@@ -40,6 +43,7 @@ export function TransactionForm({
   isLoading = false,
 }: TransactionFormProps) {
   const { categories, loading: categoriesLoading, fetchCategories } = useCategories();
+  const { wallets, loading: walletsLoading, fetchWallets } = useWallets();
 
   const [type, setType] = useState<'income' | 'expense'>(initialData?.type ?? 'expense');
   const [amount, setAmount] = useState<string>(initialData?.amount?.toString() ?? '');
@@ -48,6 +52,7 @@ export function TransactionForm({
   const [date, setDate] = useState<string>(initialData?.date?.split('T')[0] ?? getTodayDate());
   const [isRecurring, setIsRecurring] = useState<boolean>(false);
   const [recurringType, setRecurringType] = useState<'monthly' | 'weekly' | 'yearly'>('monthly');
+  const [walletId, setWalletId] = useState<string | null>(initialData?.wallet_id ?? null);
 
   const [errors, setErrors] = useState<{
     amount?: string;
@@ -57,7 +62,8 @@ export function TransactionForm({
 
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+    fetchWallets();
+  }, [fetchCategories, fetchWallets]);
 
   // Filter categories based on selected type
   const filteredCategories = categories.filter((cat) => cat.type === type);
@@ -102,6 +108,7 @@ export function TransactionForm({
       date,
       is_recurring: isRecurring,
       recurring_type: isRecurring ? recurringType : null,
+      wallet_id: walletId,
     });
   };
 
@@ -230,6 +237,53 @@ export function TransactionForm({
         </Select>
         {errors.category_id && (
           <p className="text-sm text-red-500">{errors.category_id}</p>
+        )}
+      </div>
+
+      {/* Wallet Select */}
+      <div className="space-y-2">
+        <Label>Cartão / Conta (opcional)</Label>
+        <Select
+          value={walletId || '__none__'}
+          onValueChange={(value) => setWalletId(value === '__none__' ? null : value)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Selecione um cartão ou conta" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__none__">Nenhum</SelectItem>
+            {walletsLoading ? (
+              <SelectItem value="loading" disabled>
+                Carregando...
+              </SelectItem>
+            ) : wallets.filter((w) => w.is_active).length === 0 ? (
+              <SelectItem value="empty" disabled>
+                Cadastre cartões/contas em Cartões e Bancos
+              </SelectItem>
+            ) : (
+              wallets
+                .filter((w) => w.is_active)
+                .map((wallet) => (
+                  <SelectItem key={wallet.id} value={wallet.id}>
+                    <span className="flex items-center gap-2">
+                      <span>{wallet.icon}</span>
+                      <span>{wallet.name}</span>
+                      <span className="text-muted-foreground">
+                        ({formatCurrency(wallet.balance)})
+                      </span>
+                    </span>
+                  </SelectItem>
+                ))
+            )}
+          </SelectContent>
+        </Select>
+        {wallets.filter((w) => w.is_active).length === 0 && !walletsLoading && (
+          <p className="text-xs text-muted-foreground">
+            Cadastre cartões/contas em{' '}
+            <a href="/wallets" className="text-indigo-500 hover:underline">
+              Cartões e Bancos
+            </a>
+          </p>
         )}
       </div>
 

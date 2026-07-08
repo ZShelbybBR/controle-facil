@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -30,14 +31,21 @@ import {
   Heart,
   Film,
   BookOpen,
+  Plus,
+  Minus,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useTransactions } from '@/hooks/useTransactions';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { FixedExpensesCard } from '@/components/dashboard/FixedExpensesCard';
 import { MonthlyGoalCard } from '@/components/dashboard/MonthlyGoalCard';
+import { TransactionForm } from '@/components/transactions/TransactionForm';
+import type { TransactionFormData } from '@/components/transactions/TransactionForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -134,6 +142,30 @@ export function DashboardPage() {
     loading,
   } = useDashboard();
 
+  const { createTransaction } = useTransactions();
+
+  // Quick-add dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<'income' | 'expense'>('expense');
+  const [saving, setSaving] = useState(false);
+
+  function openQuickAdd(type: 'income' | 'expense') {
+    setDialogType(type);
+    setDialogOpen(true);
+  }
+
+  async function handleQuickAdd(data: TransactionFormData) {
+    setSaving(true);
+    try {
+      await createTransaction({ ...data, type: dialogType, user_id: '' });
+      setDialogOpen(false);
+    } catch {
+      // error handled in hook
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const userName = user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'Usuário';
   const today = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
 
@@ -198,6 +230,24 @@ export function DashboardPage() {
           <CalendarDays className="h-4 w-4" />
           {today}
         </p>
+      </div>
+
+      {/* Quick-add buttons */}
+      <div className="flex gap-3 animate-slide-up" style={{ animationDelay: '0.08s' }}>
+        <Button
+          onClick={() => openQuickAdd('income')}
+          className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white gap-2 h-11 px-6"
+        >
+          <Plus className="h-4 w-4" />
+          Nova Receita
+        </Button>
+        <Button
+          onClick={() => openQuickAdd('expense')}
+          className="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 text-white gap-2 h-11 px-6"
+        >
+          <Minus className="h-4 w-4" />
+          Nova Despesa
+        </Button>
       </div>
 
       {/* Empty state */}
@@ -492,6 +542,22 @@ export function DashboardPage() {
           </Card>
         </>
       )}
+
+      {/* Quick-add Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {dialogType === 'income' ? '💰 Nova Receita' : '💸 Nova Despesa'}
+            </DialogTitle>
+          </DialogHeader>
+          <TransactionForm
+            onSubmit={handleQuickAdd}
+            initialData={{ type: dialogType }}
+            isLoading={saving}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
   BarChart3,
   LogOut,
   Settings,
+  Wallet,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from './ThemeToggle';
@@ -17,6 +18,7 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/transactions', label: 'Transações', icon: ArrowLeftRight },
   { to: '/categories', label: 'Categorias', icon: Tag },
+  { to: '/wallets', label: 'Cartões e Bancos', icon: Wallet },
   { to: '/reports', label: 'Relatórios', icon: BarChart3 },
   { to: '/settings', label: 'Configurações', icon: Settings },
 ];

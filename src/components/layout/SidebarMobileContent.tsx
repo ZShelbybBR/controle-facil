@@ -5,6 +5,7 @@ import {
   Tag,
   BarChart3,
   LogOut,
+  Wallet,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,6 +16,7 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/transactions', label: 'Transações', icon: ArrowLeftRight },
   { to: '/categories', label: 'Categorias', icon: Tag },
+  { to: '/wallets', label: 'Cartões e Bancos', icon: Wallet },
   { to: '/reports', label: 'Relatórios', icon: BarChart3 },
 ];
 
