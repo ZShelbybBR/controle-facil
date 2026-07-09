@@ -1,5 +1,12 @@
 {
   "rewrites": [
-    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/transactions", "destination": "/index.html" },
+    { "source": "/categories", "destination": "/index.html" },
+    { "source": "/wallets", "destination": "/index.html" },
+    { "source": "/reports", "destination": "/index.html" },
+    { "source": "/settings", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/signup", "destination": "/index.html" }
   ]
 }
