@@ -1,8 +1,8 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
   "rewrites": [
-    {
-      "source": "/((?!assets/|sw\\.js|manifest\\.json|icon-.*\\.png|robots\\.txt|sitemap\\.txt).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ]
 }
