@@ -37,7 +37,7 @@ export function useWallets() {
   }, []);
 
   const createWallet = useCallback(
-    async (data: Omit<Wallet, 'id' | 'created_at' | 'updated_at'>) => {
+    async (data: Omit<Wallet, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
       setState((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
